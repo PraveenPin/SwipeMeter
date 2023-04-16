@@ -2,6 +2,7 @@ package routes
 
 import (
 	"SwipeMeter/controllers"
+	"fmt"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gorilla/mux"
@@ -11,6 +12,10 @@ import (
 
 type Dispatcher struct{}
 
+func HomeEndpoint(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Hello world :)")
+}
+
 func (r *Dispatcher) Init(db *dynamodb.DynamoDB, s3 *s3.S3) {
 	log.Println("Initialize the router")
 	router := mux.NewRouter()
@@ -19,7 +24,7 @@ func (r *Dispatcher) Init(db *dynamodb.DynamoDB, s3 *s3.S3) {
 	userController.SetS3ConnectorClient(s3)
 
 	router.StrictSlash(true)
-	//router.HandleFunc("/", profile).Methods("GET")
+	router.HandleFunc("/", HomeEndpoint).Methods("GET")
 	// User Resource
 	//userRoutes := router.PathPrefix("/users").Subrouter()
 	router.HandleFunc("/login", userController.AuthenticateUser).Methods("POST")
