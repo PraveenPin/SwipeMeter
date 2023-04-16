@@ -1,37 +1,42 @@
 package models
 
-import (
-	"golang.org/x/crypto/bcrypt"
-	"gopkg.in/mgo.v2/bson"
-)
-
-type AuthUser struct {
-	Username string
-	Password string
+type SwipeEntry struct {
+	timestamp string
+	time      float32
 }
 
 type User struct {
-	Id        bson.ObjectId `_id,omitempty`
-	FirstName string        `validate:"required" json:"first_name"`
-	LastName  string        `validate:"required" json:"last_name"`
-	Email     string        `validate:"required,email" json:"email"`
-	Username  string        `validate:"required" json:"username"`
-	Password  string        `validate:"required" json:"-"`
+	Username     string
+	Creationdate string
+	Email        string
+	Totaltime    float32
+	Swipedata    []SwipeEntry
 }
 
-func (u *User) SetPassword(password string) {
-	hpass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		panic(err) //this is a panic because bcrypt errors on invalid costs
+func GetNullUser() User {
+	return User{
+		Username:     "",
+		Creationdate: "",
+		Email:        "",
+		Totaltime:    -1.0,
+		Swipedata:    nil,
 	}
-	u.Password = string(hpass)
 }
 
-func (u *User) CheckPassword(password string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
-	if err != nil {
-		return false
+func CreateUserObject(username string, creationdate string, email string, totaltime float32) User {
+	newUser := User{
+		Username:     username,
+		Creationdate: creationdate,
+		Email:        email,
+		Totaltime:    totaltime,
+		Swipedata:    nil,
 	}
 
-	return true
+	return newUser
 }
+
+//func (u *User) SetPassword(password string) {
+//}
+//
+//func (u *User) CheckPassword(password string) bool {
+//}
