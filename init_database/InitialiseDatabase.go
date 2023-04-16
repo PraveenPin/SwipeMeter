@@ -9,7 +9,10 @@ import (
 	"log"
 )
 
-func StartAWSSession() *session.Session {
+type App struct {
+}
+
+func (app *App) StartAWSSession() *session.Session {
 	log.Println("Initiating aws session to create tables")
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
@@ -18,29 +21,27 @@ func StartAWSSession() *session.Session {
 	return sess
 }
 
-func GetDynamoDatabaseClient(session *session.Session) *dynamodb.DynamoDB {
-
-	log.Println("Obtaining dynamo db client connector to create tables")
+func (app *App) GetDynamoDatabaseClient(session *session.Session) *dynamodb.DynamoDB {
 	svc := dynamodb.New(session)
-
+	log.Println("Dynamodb client connector obtained")
 	return svc
 }
 
-func InitDatabase(svc *dynamodb.DynamoDB) {
+func (app *App) InitDatabase(svc *dynamodb.DynamoDB) {
 	fmt.Println("Creating database tables")
 	createUserTable(svc)
 	CreateAuthenticationTable(svc)
 	fmt.Println("Tables created")
 }
 
-func GetS3Connector(session *session.Session) *s3.S3 {
-	log.Println("Obtaining s3 connector ")
+func (app *App) GetS3Connector(session *session.Session) *s3.S3 {
 	svc := s3.New(session)
+	log.Println("S3 connector obtained")
 	return svc
 }
 
-func GetS3Uploader(session *session.Session) *s3manager.Uploader {
-	log.Println("Obtaining s3 uploader")
+func (app *App) GetS3Uploader(session *session.Session) *s3manager.Uploader {
 	uploader := s3manager.NewUploader(session)
+	log.Println("S3 uploader obtained")
 	return uploader
 }
