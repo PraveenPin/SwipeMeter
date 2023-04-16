@@ -101,7 +101,7 @@ func CreateUser(dynamoDbSvc *dynamodb.DynamoDB) {
 	//	response.Format(w, r, true, 417, errs)
 	//	return
 	//}
-	newUser := models.CreateUserObject("praveenpin-1", "2023-04-15", "praveen123pinjala@gmail.com", 11.1)
+	newUser := models.CreateUserObject("praveenpin-1", "2023-04-15", "praveen123pinjala@gmail.com", 11.1, "")
 	created, create_err := userRepository.Create(newUser, "1234", dynamoDbSvc)
 
 	if create_err != nil {

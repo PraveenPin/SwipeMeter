@@ -1,7 +1,9 @@
 1. Create an User Service
-    1. Connection to AWS Dynamo DB
-    2. Connection to AWS S3
-    3. Define a User object schema
-    4. Create Account Workflow
-    5. Authenticate account workflow
+    1. Connection to AWS Dynamo DB - Done
+    2. Connection to AWS S3 - Done
+    3. Define a User object schema - Done
+    4. Create Account Workflow - Done
+    5. Authenticate account workflow - Done
     6. Generate an API TOKEN workflow
+    7. Upload an image - from UI
+2.
