@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"SwipeMeter/controllers"
 	"fmt"
+	"github.com/PraveenPin/SwipeMeter/controllers"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gorilla/mux"

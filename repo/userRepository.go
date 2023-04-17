@@ -1,9 +1,9 @@
 package repo
 
 import (
-	"SwipeMeter/models"
 	"errors"
 	"fmt"
+	"github.com/PraveenPin/SwipeMeter/models"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
