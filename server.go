@@ -1,8 +1,8 @@
 package main
 
 import (
-	"SwipeMeter/init_database"
-	"SwipeMeter/routes"
+	"github.com/PraveenPin/SwipeMeter/init_database"
+	"github.com/PraveenPin/SwipeMeter/routes"
 	"log"
 )
 

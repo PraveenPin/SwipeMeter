@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"SwipeMeter/models"
-	"SwipeMeter/repo"
-	"SwipeMeter/utils"
 	"encoding/json"
 	"fmt"
+	"github.com/PraveenPin/SwipeMeter/models"
+	"github.com/PraveenPin/SwipeMeter/repo"
+	"github.com/PraveenPin/SwipeMeter/utils"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
@@ -155,7 +155,7 @@ func (u *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	if created {
 		log.Println("New User created:", newUser)
-		response.Format(w, r, false, 200, newUser)
+		response.Format(w, r, false, 201, newUser)
 		return
 	}
 

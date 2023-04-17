@@ -1,4 +1,4 @@
-module SwipeMeter
+module github.com/PraveenPin/SwipeMeter
 
 go 1.20
 
