@@ -31,7 +31,7 @@ func (r *Dispatcher) Init(db *dynamodb.DynamoDB, s3 *s3.S3) {
 	router.HandleFunc("/signup", userController.CreateUser).Methods("POST")
 
 	//Authenticate
-	//userRoutes.HandleFunc("/authenticate", UserController.Authenticate).Methods("POST")
+	//router.HandleFunc("/authenticateToken", userController.AuthenticateToken).Methods("POST")
 
 	// bind the routes
 	http.Handle("/", router)
