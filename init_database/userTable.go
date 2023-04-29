@@ -17,19 +17,11 @@ func createUserTable(dynamoDBSvc *dynamodb.DynamoDB) {
 				AttributeName: aws.String("Username"),
 				AttributeType: aws.String("S"),
 			},
-			{
-				AttributeName: aws.String("Creationdate"),
-				AttributeType: aws.String("S"),
-			},
 		},
 		KeySchema: []*dynamodb.KeySchemaElement{
 			{
 				AttributeName: aws.String("Username"),
 				KeyType:       aws.String("HASH"),
-			},
-			{
-				AttributeName: aws.String("Creationdate"),
-				KeyType:       aws.String("RANGE"),
 			},
 		},
 		ProvisionedThroughput: &dynamodb.ProvisionedThroughput{

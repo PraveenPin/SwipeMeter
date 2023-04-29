@@ -11,7 +11,8 @@ type User struct {
 	Email        string
 	Totaltime    float32
 	Swipedata    []SwipeEntry
-	ProfilPic    string
+	ProfilePic   string
+	Groups       []string
 }
 
 func GetNullUser() User {
@@ -21,7 +22,7 @@ func GetNullUser() User {
 		Email:        "",
 		Totaltime:    -1.0,
 		Swipedata:    nil,
-		ProfilPic:    "",
+		ProfilePic:   "",
 	}
 }
 
@@ -32,7 +33,7 @@ func CreateUserObject(username string, creationdate string, email string, totalt
 		Email:        email,
 		Totaltime:    totaltime,
 		Swipedata:    nil,
-		ProfilPic:    pic,
+		ProfilePic:   pic,
 	}
 
 	return newUser

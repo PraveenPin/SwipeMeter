@@ -30,28 +30,8 @@ type UserController struct {
 	s3Uploader  *s3manager.Uploader
 }
 
-func (u *UserController) SetDynamoDbClient(db *dynamodb.DynamoDB) {
-	u.dynamodbSVC = db
-}
-
-func (u *UserController) SetS3ConnectorClient(s3 *s3.S3) {
-	u.s3Connector = s3
-}
-
-func (u *UserController) setS3UploaderClient(s3 *s3manager.Uploader) {
-	u.s3Uploader = s3
-}
-
-func (u *UserController) getDynamoDbClient() *dynamodb.DynamoDB {
-	return u.dynamodbSVC
-}
-
-func (u *UserController) getS3ConnectorClient() *s3.S3 {
-	return u.s3Connector
-}
-
-func (u *UserController) getS3UploaderClient() *s3manager.Uploader {
-	return u.s3Uploader
+func NewUserController(dynamodbSVC *dynamodb.DynamoDB, s3Connector *s3.S3, s3Uploader *s3manager.Uploader) *UserController {
+	return &UserController{dynamodbSVC: dynamodbSVC, s3Connector: s3Connector, s3Uploader: s3Uploader}
 }
 
 // Get All Users
@@ -145,7 +125,7 @@ func (u *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	//	return
 	//}
 	//newUser := models.CreateUserObject("praveenpin-1", "2023-04-15", "praveen123pinjala@gmail.com", 11.1, "")
-	created, create_err := userRepository.Create(newUser, "1234", u.getDynamoDbClient())
+	created, create_err := userRepository.Create(newUser, "1234", u.dynamodbSVC)
 
 	if create_err != nil {
 		log.Fatal("Error %v creating user with", create_err, newUser)
@@ -171,7 +151,7 @@ func (u *UserController) AuthenticateUser(w http.ResponseWriter, r *http.Request
 	decoder := json.NewDecoder(r.Body)
 	decoder.Decode(&newAuthUser)
 
-	isSuccessFull, err := userRepository.Authenticate(newAuthUser, u.getDynamoDbClient())
+	isSuccessFull, err := userRepository.Authenticate(newAuthUser, u.dynamodbSVC)
 
 	fmt.Println("Successfully Authenticated? :", isSuccessFull)
 

@@ -14,19 +14,11 @@ func CreateGroupTable(dynamoDBSvc *dynamodb.DynamoDB) {
 				AttributeName: aws.String("GroupID"),
 				AttributeType: aws.String("S"),
 			},
-			{
-				AttributeName: aws.String("CreatedAt"),
-				AttributeType: aws.String("S"),
-			},
 		},
 		KeySchema: []*dynamodb.KeySchemaElement{
 			{
 				AttributeName: aws.String("GroupID"),
 				KeyType:       aws.String("HASH"),
-			},
-			{
-				AttributeName: aws.String("CreatedAt"),
-				KeyType:       aws.String("RANGE"),
 			},
 		},
 		ProvisionedThroughput: &dynamodb.ProvisionedThroughput{

@@ -30,8 +30,8 @@ func (app *App) GetDynamoDatabaseClient(session *session.Session) *dynamodb.Dyna
 func (app *App) InitDatabase(svc *dynamodb.DynamoDB) {
 	fmt.Println("Creating database tables")
 	createUserTable(svc)
-	CreateAuthenticationTable(svc)
-	CreateGroupTable(svc)
+	//CreateAuthenticationTable(svc)
+	//CreateGroupTable(svc)
 	fmt.Println("Tables created")
 }
 
