@@ -2,3 +2,5 @@ output
 output/*
 keys
 *.pem
+
+init_database/InitialiseDatabase.go
