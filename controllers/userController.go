@@ -2,114 +2,45 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/PraveenPin/SwipeMeter/models"
 	"github.com/PraveenPin/SwipeMeter/repo"
+	"github.com/PraveenPin/SwipeMeter/services"
 	"github.com/PraveenPin/SwipeMeter/utils"
+	"github.com/auth0/go-auth0/management"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"log"
 	"net/http"
+	"time"
 )
+
+const FILE_NAME = "UserController:"
 
 var response *utils.Response
 
-type UserControllerInterface interface {
-	setDynamoDbClient(db *dynamodb.DynamoDB)
-	setS3ConnectorClient(s3 *s3.S3)
-	setS3UploaderClient(s3 *s3manager.Uploader)
-	getDynamoDbClient()
-	getS3ConnectorClient()
-	getS3UploaderClient()
-}
-
 type UserController struct {
-	dynamodbSVC *dynamodb.DynamoDB
-	s3Connector *s3.S3
-	s3Uploader  *s3manager.Uploader
+	userService *services.UserService
 }
 
-func NewUserController(dynamodbSVC *dynamodb.DynamoDB, s3Connector *s3.S3, s3Uploader *s3manager.Uploader) *UserController {
-	return &UserController{dynamodbSVC: dynamodbSVC, s3Connector: s3Connector, s3Uploader: s3Uploader}
+func NewUserController(dynamodbSVC *dynamodb.DynamoDB, s3Connector *s3.S3, s3Uploader *s3manager.Uploader, authClient *management.Management) *UserController {
+	userRepository := &repo.UserRepository{}
+	userService := services.NewUserService(dynamodbSVC, s3Connector, s3Uploader, authClient, userRepository)
+	return &UserController{userService}
 }
 
-// Get All Users
-//func (u *UserController) GetAll(w http.ResponseWriter, r *http.Request) {
-//
-//	var uRepo = repo.UserRepository{}
-//	res,err := uRepo.GetAll()
-//
-//	// Error occured
-//	if err != nil {
-//		response.Format(w, r, true, 400, err)
-//	}
-//
-//	response.Format(w, r, false, 200, res)
-//}
-
-//Get One By ID
-//func (u *UserController) GetOne(w http.ResponseWriter, r *http.Request) {
-//	vars := mux.Vars(r)
-//	var uRepo = repo.UserRepository{}
-//	var user,err = uRepo.GetOne(vars)
-//
-//	res, err := json.Marshal(user)
-//
-//	if err != nil {
-//		w.Write([]byte("Error"))
-//	}
-//
-//	w.Write([]byte(res))
-//
-//}
-
-// Destroy user
-//func (u *UserController) Destroy(w http.ResponseWriter, r *http.Request) {
-//	vars := mux.Vars(r)
-//	var uRepo = repo.UserRepository{}
-//	var user,err = uRepo.Destroy(vars)
-//
-//	res, err := json.Marshal(user)
-//
-//	if err != nil {
-//		w.Write([]byte("Error"))
-//	}
-//
-//	w.Write([]byte(res))
-//
-//}
-
-// Update User
-//func (u *UserController) Update(w http.ResponseWriter, r *http.Request) {
-//	vars := mux.Vars(r)
-//	var uRepo = repo.UserRepository{}
-//	var user,err = uRepo.Update(vars)
-//
-//	res, err := json.Marshal(user)
-//
-//	if err != nil {
-//		w.Write([]byte("Error"))
-//	}
-//
-//	w.Write([]byte(res))
-//
-//}
-
-// CreateUser User
-func (u *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
-	var userRepository = repo.UserRepository{}
-	log.Println("Create User Request: ", r)
+func (u *UserController) CreateUserController(w http.ResponseWriter, r *http.Request) {
+	log.Println(FILE_NAME, "Create User Request: ", r)
 	decoder := json.NewDecoder(r.Body)
 
-	newUser := models.User{}
-	err := decoder.Decode(&newUser)
+	newSignUpUser := models.SignUpUser{}
+	err := decoder.Decode(&newSignUpUser)
 	if err != nil {
 		response.Format(w, r, true, 417, err)
 		return
 	}
 
-	log.Println("User object is :", newUser)
+	log.Println(FILE_NAME, "User object is :", newSignUpUser)
 
 	//config := validator.Config{
 	//	TagName:         "validate",
@@ -124,43 +55,32 @@ func (u *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	//	response.Format(w, r, true, 417, errs)
 	//	return
 	//}
-	//newUser := models.CreateUserObject("praveenpin-1", "2023-04-15", "praveen123pinjala@gmail.com", 11.1, "")
-	created, create_err := userRepository.Create(newUser, "1234", u.dynamodbSVC)
+
+	_, create_auth_err := u.userService.CreateAuthUserService(newSignUpUser)
+	if create_auth_err != nil {
+		log.Fatalf(FILE_NAME, create_auth_err)
+		response.Format(w, r, true, 418, create_auth_err)
+		return
+	}
+
+	log.Println(FILE_NAME, "Auth User Successfully created")
+
+	newUser := models.User{
+		Username:     newSignUpUser.Username,
+		Email:        newSignUpUser.Email,
+		Creationdate: time.Now().Format(time.RFC850),
+		Totaltime:    0.0,
+	}
+
+	_, create_err := u.userService.CreateUserService(newUser)
 
 	if create_err != nil {
-		log.Fatal("Error %v creating user with", create_err, newUser)
+		log.Fatalf(FILE_NAME, "Error %v creating user with", create_err, newUser)
 		response.Format(w, r, true, 418, create_err)
 		return
 	}
 
-	if created {
-		log.Println("New User created:", newUser)
-		response.Format(w, r, false, 201, newUser)
-		return
-	}
+	log.Println(FILE_NAME, "New User created:", newUser)
+	response.Format(w, r, false, 201, newUser)
 
-	return
-
-}
-
-func (u *UserController) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
-	log.Println("Authenticate Request: ", r)
-
-	var userRepository = &repo.UserRepository{}
-	newAuthUser := models.AuthenticationUser{}
-	decoder := json.NewDecoder(r.Body)
-	decoder.Decode(&newAuthUser)
-
-	isSuccessFull, err := userRepository.Authenticate(newAuthUser, u.dynamodbSVC)
-
-	fmt.Println("Successfully Authenticated? :", isSuccessFull)
-
-	if err != nil {
-		log.Fatalf(err.Error())
-		response.Format(w, r, true, 418, err)
-		return
-	}
-
-	response.Format(w, r, false, 200, newAuthUser.Username)
-	return
 }

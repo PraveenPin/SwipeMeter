@@ -14,11 +14,13 @@ func main() {
 	dynamoDBSvc := app.GetDynamoDatabaseClient(session)
 	s3Connector := app.GetS3Connector(session)
 
+	authMgmtClient := app.GetAuth0Client()
+
 	dispatcher := Dispatcher{}
-	dispatcher.Init(dynamoDBSvc, s3Connector)
+	dispatcher.Init(dynamoDBSvc, s3Connector, authMgmtClient)
 
 	//app.InitDatabase(dynamoDBSvc)
-	//controllers.CreateUser(dynamoDBSvc)
+	//controllers.CreateUserController(dynamoDBSvc)
 	//controllers.AuthenticateUser(dynamoDBSvc)
 	//utils.GetAllS3Objects(s3Connector)
 }

@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/PraveenPin/SwipeMeter/controllers"
+	"github.com/PraveenPin/SwipeMeter/repo"
 	"github.com/PraveenPin/SwipeMeter/services"
+	"github.com/auth0/go-auth0/management"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gorilla/mux"
@@ -22,7 +24,7 @@ func HomeEndpoint(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Hello world :)")
 }
 
-func (r *Dispatcher) StartGRPCServer(db *dynamodb.DynamoDB) {
+func (r *Dispatcher) StartGRPCServer(db *dynamodb.DynamoDB, s3 *s3.S3, authClient *management.Management) {
 	//start a grpc server
 	log.Println("Starting GRPC server on port", GRPC_PORT)
 	lis, err := net.Listen("tcp", GRPC_PORT)
@@ -32,7 +34,8 @@ func (r *Dispatcher) StartGRPCServer(db *dynamodb.DynamoDB) {
 	log.Printf("Listening on %s", GRPC_PORT)
 
 	grpcServer := grpc.NewServer()
-	userServiceServer := services.NewUserService(db)
+	userRepo := &repo.UserRepository{}
+	userServiceServer := services.NewUserService(db, s3, nil, authClient, userRepo)
 	services.RegisterUserServiceServer(grpcServer, userServiceServer)
 
 	if err := grpcServer.Serve(lis); err != nil {
@@ -41,23 +44,20 @@ func (r *Dispatcher) StartGRPCServer(db *dynamodb.DynamoDB) {
 	log.Println("Started GRPC server on port", GRPC_PORT)
 }
 
-func (r *Dispatcher) Init(db *dynamodb.DynamoDB, s3 *s3.S3) {
+func (r *Dispatcher) Init(db *dynamodb.DynamoDB, s3 *s3.S3, authClient *management.Management) {
 	//start grpc server
-	go r.StartGRPCServer(db)
+	go r.StartGRPCServer(db, s3, authClient)
 
 	log.Println("Initialize the router")
 	router := mux.NewRouter()
-	userController := controllers.NewUserController(db, s3, nil)
+	userController := controllers.NewUserController(db, s3, nil, authClient)
 
 	router.StrictSlash(true)
 	router.HandleFunc("/", HomeEndpoint).Methods("GET")
 	// User Resource
 	//userRoutes := router.PathPrefix("/users").Subrouter()
-	router.HandleFunc("/login", userController.AuthenticateUser).Methods("POST")
-	router.HandleFunc("/signup", userController.CreateUser).Methods("POST")
-
-	//Authenticate
-	//router.HandleFunc("/authenticateToken", userController.AuthenticateToken).Methods("POST")
+	//router.HandleFunc("/login", userController.AuthenticateUser).Methods("POST")
+	router.HandleFunc("/signup", userController.CreateUserController).Methods("POST")
 
 	// bind the routes
 	http.Handle("/", router)

@@ -41,31 +41,10 @@ type UserRepository struct{}
 //func (u *UserRepository) Update(vars map[string]string) (bool, error) {
 //}
 
-func (u *UserRepository) Create(user models.User, password string, dynamoDBSvc *dynamodb.DynamoDB) (bool, error) {
+func (u *UserRepository) Create(user models.User, dynamoDBSvc *dynamodb.DynamoDB) (bool, error) {
 	logPrefix := "UserRepository:Create:"
-	authUser := models.CreateAuthUserObject(user.Username, password)
-
-	authUserItem, err := dynamodbattribute.MarshalMap(authUser)
-	if err != nil {
-		log.Fatalf(logPrefix, "Error Marshalling auth user object into map: %s", err)
-		return false, nil
-	}
-
-	authInput := &dynamodb.PutItemInput{
-		Item:      authUserItem,
-		TableName: aws.String(authTableName),
-	}
-
-	_, err = dynamoDBSvc.PutItem(authInput)
-	if err != nil {
-		log.Fatalf(logPrefix, "Error inserting new auth user in to the table: %s", err)
-		return false, nil
-	}
-	log.Println(logPrefix, "New Auth User inserted for user:", user.Username)
 
 	av, err := dynamodbattribute.MarshalMap(user)
-	fmt.Println(av)
-	fmt.Println(user)
 	if err != nil {
 		log.Fatalf(logPrefix, "Got error marshalling new movie item: %s", err)
 		return false, nil
@@ -84,41 +63,6 @@ func (u *UserRepository) Create(user models.User, password string, dynamoDBSvc *
 	log.Println(logPrefix, "New User inserted for user:", user.Username)
 
 	return true, nil
-}
-
-func (u *UserRepository) Authenticate(authUser models.AuthenticationUser, dynamoDBSvc *dynamodb.DynamoDB) (bool, error) {
-
-	result, err := dynamoDBSvc.GetItem(&dynamodb.GetItemInput{
-		TableName: aws.String(authTableName),
-		Key: map[string]*dynamodb.AttributeValue{
-			"Username": {
-				S: aws.String(authUser.Username),
-			},
-		},
-	})
-	if err != nil {
-		log.Fatalf("Got error calling GetItem: %s", err)
-		return false, nil
-	}
-
-	if result.Item == nil {
-		msg := "Could not find '" + authUser.Username + "'"
-		return false, errors.New(msg)
-	}
-
-	authenticatedUser := models.AuthenticationUser{}
-
-	err = dynamodbattribute.UnmarshalMap(result.Item, &authenticatedUser)
-	if err != nil {
-		log.Fatalf(fmt.Sprintf("Failed to unmarshal Record, %v", err))
-		return false, nil
-	}
-
-	if authenticatedUser.Password == authUser.Password {
-		return true, nil
-	}
-
-	return false, errors.New("Authentication Failed")
 }
 
 func (u *UserRepository) AddGroupToUserMap(db *dynamodb.DynamoDB, userName string, groupId string) (bool, error) {
