@@ -56,7 +56,7 @@ func (r *Dispatcher) Init(db *dynamodb.DynamoDB, s3 *s3.S3, authClient *manageme
 	router.HandleFunc("/", HomeEndpoint).Methods("GET")
 	// User Resource
 	//userRoutes := router.PathPrefix("/users").Subrouter()
-	//router.HandleFunc("/login", userController.AuthenticateUser).Methods("POST")
+	router.HandleFunc("/login", userController.AuthenticateUser).Methods("POST")
 	router.HandleFunc("/signup", userController.CreateUserController).Methods("POST")
 
 	// bind the routes

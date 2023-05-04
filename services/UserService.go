@@ -2,8 +2,10 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/PraveenPin/SwipeMeter/init_database"
 	"github.com/PraveenPin/SwipeMeter/models"
 	"github.com/PraveenPin/SwipeMeter/repo"
 	"github.com/auth0/go-auth0/management"
@@ -12,6 +14,9 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"gopkg.in/auth0.v5"
 	"log"
+	"net/http"
+	"net/url"
+	"strings"
 )
 
 const FILE_NAME = "UserService:"
@@ -117,6 +122,49 @@ func (u *UserService) CreateAuthUserService(newSignUpUser models.SignUpUser) (bo
 	}
 
 	return true, nil
+}
+
+func (u *UserService) VerifyCredsAndGetToken(loginUser models.SignUpUser) (map[string]interface{}, error) {
+
+	// Create a context and set the form values for the request
+	ctx := context.Background()
+	form := url.Values{}
+	form.Set("grant_type", "password")
+	form.Set("username", loginUser.Email)
+	form.Set("password", loginUser.Password)
+	form.Set("client_id", init_database.CLIENT_ID)
+	form.Set("client_secret", init_database.CLIENT_SECRET)
+	form.Set("audience", init_database.AUDIENCE)
+
+	apiEndpoint := fmt.Sprintf("https://%s/oauth/token", init_database.DOMAIN)
+
+	// Create a new request with the form data
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, apiEndpoint, strings.NewReader(form.Encode()))
+	if err != nil {
+		msg := fmt.Sprintf(FILE_NAME, "Error creating request:", err)
+		return nil, errors.New(msg)
+	}
+
+	// Set the request headers
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	// Send the request and parse the response
+	client := http.DefaultClient
+	resp, err := client.Do(req)
+	if err != nil {
+		msg := fmt.Sprintf(FILE_NAME, "Error sending request:", err)
+		return nil, errors.New(msg)
+	}
+	defer resp.Body.Close()
+
+	var response map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		msg := fmt.Sprintf(FILE_NAME, "Error parsing response:", err)
+		return nil, errors.New(msg)
+	}
+
+	return response, nil
 }
 
 func (u *UserService) mustEmbedUnimplementedUserServiceServer() {}

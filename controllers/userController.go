@@ -29,6 +29,24 @@ func NewUserController(dynamodbSVC *dynamodb.DynamoDB, s3Connector *s3.S3, s3Upl
 	return &UserController{userService}
 }
 
+func (u *UserController) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
+	log.Println(FILE_NAME, "User Login Request: ", r)
+	decoder := json.NewDecoder(r.Body)
+
+	loginUser := models.SignUpUser{}
+	err := decoder.Decode(&loginUser)
+	if err != nil {
+		response.Format(w, r, true, 417, err)
+		return
+	}
+
+	log.Println(FILE_NAME, "User object is :", loginUser)
+
+	respData, err := u.userService.VerifyCredsAndGetToken(loginUser)
+	response.Format(w, r, false, 200, respData)
+
+}
+
 func (u *UserController) CreateUserController(w http.ResponseWriter, r *http.Request) {
 	log.Println(FILE_NAME, "Create User Request: ", r)
 	decoder := json.NewDecoder(r.Body)
