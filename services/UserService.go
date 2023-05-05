@@ -41,7 +41,7 @@ func (u *UserService) AddGroupToUser(ctx context.Context, userReq *AddGroupToUse
 
 	_, err := u.userRepo.AddGroupToUserMap(u.db, userReq.GetUsername(), userReq.GetGroupId())
 	if err != nil {
-		log.Fatalf(FILE_NAME, "Error adding groups to user in grpc ", err)
+		log.Println(FILE_NAME, "Error adding groups to user in grpc ", err)
 		resp.Success = false
 		return resp, err
 	}
@@ -55,7 +55,7 @@ func (u *UserService) RemoveGroupFromUser(ctx context.Context, userReq *RemoveGr
 
 	_, err := u.userRepo.RemoveGroupFromUserMap(u.db, userReq.GetUsername(), userReq.GetGroupId())
 	if err != nil {
-		log.Fatalf(FILE_NAME, "Error removing groups to user in grpc ", err)
+		log.Println(FILE_NAME, "Error removing groups to user in grpc ", err)
 		resp.Success = false
 		return resp, err
 	}
@@ -71,7 +71,7 @@ func (u *UserService) GetAllUserGroupsAndUpdateTotalScore(ctx context.Context, u
 
 	groups, err := u.userRepo.GetAllUserGroupsAndUpdateTotalTime(u.db, userReq.GetUsername(), userReq.GetScore())
 	if err != nil {
-		log.Fatalf(FILE_NAME, "Error fetching all groups to user in grpc ", err)
+		log.Println(FILE_NAME, "Error fetching all groups to user in grpc ", err)
 		return resp, err
 	}
 	resp.Groups = groups
@@ -83,7 +83,7 @@ func (u *UserService) CreateUserService(newUser models.User) (bool, error) {
 	_, create_err := u.userRepo.Create(newUser, u.db)
 
 	if create_err != nil {
-		log.Fatal(FILE_NAME, "Error %v creating user with", create_err, newUser)
+		log.Println(FILE_NAME, "Error %v creating user with", create_err, newUser)
 		return false, create_err
 	}
 

@@ -46,7 +46,7 @@ func (u *UserRepository) Create(user models.User, dynamoDBSvc *dynamodb.DynamoDB
 
 	av, err := dynamodbattribute.MarshalMap(user)
 	if err != nil {
-		log.Fatalf(logPrefix, "Got error marshalling new movie item: %s", err)
+		log.Println(logPrefix, "Got error marshalling new movie item: %s", err)
 		return false, nil
 	}
 
@@ -57,7 +57,7 @@ func (u *UserRepository) Create(user models.User, dynamoDBSvc *dynamodb.DynamoDB
 
 	_, err = dynamoDBSvc.PutItem(input)
 	if err != nil {
-		log.Fatalf(logPrefix, "Got error calling PutItem: %s", err)
+		log.Println(logPrefix, "Got error calling PutItem: %s", err)
 		return false, nil
 	}
 	log.Println(logPrefix, "New User inserted for user:", user.Username)

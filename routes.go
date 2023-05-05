@@ -67,8 +67,3 @@ func (r *Dispatcher) Init(db *dynamodb.DynamoDB, s3 *s3.S3, authClient *manageme
 	//serve
 	http.ListenAndServe(PORT, nil)
 }
-
-func profile(w http.ResponseWriter, r *http.Request) {
-
-	w.Write([]byte("test"))
-}

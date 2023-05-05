@@ -76,7 +76,7 @@ func (u *UserController) CreateUserController(w http.ResponseWriter, r *http.Req
 
 	_, create_auth_err := u.userService.CreateAuthUserService(newSignUpUser)
 	if create_auth_err != nil {
-		log.Fatalf(FILE_NAME, create_auth_err)
+		log.Println(FILE_NAME, create_auth_err)
 		response.Format(w, r, true, 418, create_auth_err)
 		return
 	}
@@ -93,7 +93,7 @@ func (u *UserController) CreateUserController(w http.ResponseWriter, r *http.Req
 	_, create_err := u.userService.CreateUserService(newUser)
 
 	if create_err != nil {
-		log.Fatalf(FILE_NAME, "Error %v creating user with", create_err, newUser)
+		log.Println(FILE_NAME, "Error %v creating user with", create_err, newUser)
 		response.Format(w, r, true, 418, create_err)
 		return
 	}

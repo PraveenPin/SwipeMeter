@@ -4,6 +4,9 @@
     3. Define a User object schema - Done
     4. Create Account Workflow - Done
     5. Authenticate account workflow - Done
-    6. Generate an API TOKEN workflow
+    6. Generate an API TOKEN workflow - Done
     7. Upload an image - from UI
-2.
+2. Group Service
+    1. User swipe record is added to all groups and his profile
+    2. 
+3. Tracking Service
