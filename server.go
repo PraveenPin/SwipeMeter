@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/PraveenPin/SwipeMeter/init_database"
+	"github.com/PraveenPin/SwipeMeter/routes"
 	"log"
 )
 
@@ -16,7 +17,7 @@ func main() {
 
 	authMgmtClient := app.GetAuth0Client()
 
-	dispatcher := Dispatcher{}
+	dispatcher := routes.Dispatcher{}
 	dispatcher.Init(dynamoDBSvc, s3Connector, authMgmtClient)
 
 	//app.InitDatabase(dynamoDBSvc)

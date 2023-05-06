@@ -1,0 +1,14 @@
+[Unit]
+Description=SwipeMeter
+After=network.target
+
+[Service]
+User=ec2-user
+ExecStart=go run /home/ec2-user/SwipeMeter/server.go
+WorkingDirectory=/home/ec2-user/SwipeMeter
+Restart=always
+#Environment=VAR1=value1
+#Environment=VAR2=value2
+
+[Install]
+WantedBy=multi-user.target
